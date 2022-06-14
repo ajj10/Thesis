@@ -11,6 +11,7 @@ from evidence import Evidence
 from myFunctions import *
 from myState import MyState
 from myMessage import MyMessage
+from myFunctions import *
 
 # Players
 players = []
@@ -58,45 +59,60 @@ o_R = "oR"
 h_O = h(o_O)
 h_R = h(o_R)
 
-_ = None
-
 # Crimes
 crimes = {'O': [], 'R': [], 'T1': [], 'T2': [], 'T3': [], 'X': [], 'Y': []}
 
 #Law 2
 def law2(state):
+    # for all players in the system
     for player in state.players:
+        # for messages in respected players knowledge
         for k in state.playersKnowledge:
+            # if the private key of a player is in another players knowledge
             if player.key in state.playersKnowledge[k] and player.name != k:
                 crimes[player.name].append("Law #2: known private key")
 
 #Law 6 - Possible law breaks
 def law6(state):
+    # for all record in playersKnowledge
     for k in state.playersKnowledge:
-        for msg in state.playersKnowledge[k]:
-            if(type(msg)!=str):
+        # for all messages in said playersKnowledge
+        for msg in state.playersKnowledge[k]: 
+            # if it not a string(used for pretty presentation)
+            if(type(msg)!=str): 
+                # standard contracts are not messages per se but can be computed by players after CS protocol run
                 if(msg.type!="standard_contract"):
-                    if type(msg.message) is Sign:
+                    # if its a signed message 
+                    if type(msg.message) is Sign: 
+                        # of format f_exchangeI
                         if type(msg.message.message) is FexchangeI:
-                            if(msg.message.signer.id == msg.message.message.originator.id):
-                                if(msg.message.message.recevier in players):
-                                    if(msg.recevier == msg.message.message.recevier):
-                                        if(msg.message.message.server in LRS):
-                                            if(type(msg.message.message.text)==Contract):
-                                                if(type(msg.message.message.hash)==str):
-                                                    "legal message"
-                                                else:
-                                                    crimes[msg.message.signer.name].append("Law #6: h_O is not a hash")
-                                            else:
-                                                crimes[msg.message.signer.name].append("Law #6: text is not a contract")
-                                        else:
-                                            crimes[msg.message.signer.name].append("Law #6: T not in LRS")
-                                    else:
-                                        crimes[msg.message.signer.name].append("Law #6: incorrect recipient")
-                                else:
-                                    crimes[msg.message.signer.name].append("Law #6: incorrect variable type for recipient")
-                            else:
-                                crimes[msg.message.signer.name].append("Law #6: incorrect originator")
+                            # check if law 6.1 holds (O is correct originator)
+                            if(msg.message.signer.id != msg.message.message.originator.id):
+                                addToCrimes(msg.message.signer.name, "Law #6.1: incorrect originator")
+                            # check if law 6.2 holds (R in Players)
+                            if(msg.message.message.recevier not in players):
+                                addToCrimes(msg.message.signer.name, "Law #6.2: incorrect variable type for recipient")
+                            # check if law 6.3 holds (R is correct recevier)
+                            if(msg.recevier != msg.message.message.recevier):
+                                addToCrimes(msg.message.signer.name, "Law #6.3: incorrect recipient")
+                            # check if law 6.4 holds (T in LRS) 
+                            if(msg.message.message.server not in LRS):
+                                addToCrimes(msg.message.signer.name, "Law #6.4: T not in LRS")
+                            # check if law 6.5 holds (text is a contract)
+                            if(type(msg.message.message.text)!=Contract):
+                                addToCrimes(msg.message.signer.name, "Law #6.5: text is not a contract")
+                            # check if law 6.6 holds (nonce is secret when signing f_exchangeI message)
+                            if(Sign(msg.recevier, FexchangeR(Sign(msg.originator,FexchangeI(msg.originator, msg.recevier,msg.message.message.server,msg.message.message.text,msg.message.message.hash)),h_O)) not in msg.originator.knowledge):
+                                for p in players:
+                                    if p != msg.originator:
+                                        for messages in state.playersKnowledge[p.name]:
+                                            if(type(messages)==str and len(messages)>1):
+                                                if msg.message.message.hash == h(messages):
+                                                    addToCrimes(msg.message.signer.name, "Law #6.6: known hash")
+                            # check if law 6.7 holds (hash is a hash)
+                            if(type(msg.message.message.hash)!=str):
+                                addToCrimes(msg.message.signer.name, "Law #6.7: h_O is not a hash")
+                
 
 def law7(state):
     for k in state.playersKnowledge:
@@ -114,18 +130,13 @@ def law7(state):
                                             else:
                                                 crimes[msg.message.signer.name].append("Law #7: h_R is not a hash")
                                         else:
-                                            crimes[msg.message.signer.name].append("Law #7: incorrect originator")
-                                            print("text is not a contract, culprit: {}".format(msg.message.signer.name))
+                                            crimes[msg.message.signer.name].append("Law #7: text is not a contract")
                                     else:
-                                        crimes[msg.message.signer.name].append("Law #7: incorrect originator")
-                                        print("T not in LRS, culprit: {}".format(msg.message.signer.name))
+                                        crimes[msg.message.signer.name].append("Law #7: T not in LRS, culprit")
                                 else:
-                                    crimes[msg.message.signer.name].append("Law #7: incorrect originator")
-                                    print("incorrect recipient, culprit: {}".format(msg.message.signer.name))
+                                    crimes[msg.message.signer.name].append("Law #7: incorrect recipient")
                             else:
                                 crimes[msg.message.signer.name].append("Law #7: incorrect originator")
-                                print("incorrect originator, culprit: {}".format(msg.message.signer.name))
-
 
 def law8(state):
     for k in state.playersKnowledge:
@@ -180,6 +191,10 @@ def law9(state):
                                     print("T not in LRS, culprit: {}".format(msg.message.signer.name))
                             else:
                                 print("incorrect originator, culprit: {}".format(msg.message.signer.name))
+
+def addToCrimes(culprit, crime):
+    if crime not in crimes[culprit]:
+        crimes[culprit].append(crime)
 
 
 me1_a = Sign(O, FexchangeI(O, R, T1, text1, h_O)) # legal message
@@ -266,7 +281,6 @@ law7(init_state)
 law8(init_state)
 
 print(crimes)
-print(_)
 
 
 
