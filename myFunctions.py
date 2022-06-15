@@ -6,7 +6,7 @@ from contract import Contract
 
 # Hash function
 def h(nonce):
-    return "h"+nonce[1]
+    return "h"+nonce[-1]
 
 # function to check if a signiture on a message of f_exchangeI format is legal
 def fexchangeIcheck(evidence, knownContracts, LRS, players, stdContract):

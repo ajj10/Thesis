@@ -3,6 +3,7 @@ from abort import Abort
 from fexchangeI import FexchangeI
 from fexchangeR import FexchangeR
 from replacement import Replacement
+from myfunctions1 import addToCrimes
 
 
 class MyState:
@@ -19,7 +20,7 @@ class MyState:
         for player in self.players:
             self.playersKnowledge[player.name] = self.playersKnowledge[player.name] + player.knowledge
 
-    def addMsg(self, msg):
+    def addMsg(self, msg, crimes):
         players = []
         players.append(msg.originator)
         players.append(msg.recevier)
@@ -28,23 +29,26 @@ class MyState:
         for player in players:
             if(message.type=="standard_contract"):
                 tmp = []
-                tmp.append(message.pretty())
-                tmp.append(message.me1.pretty())
-                tmp.append(message.me1.message.originator.pretty())
-                tmp.append(message.me1.message.recevier.pretty())
-                tmp.append(message.me1.message.server.pretty())
-                tmp.append(message.me1.message.text.pretty())
-                tmp.append(message.me1.message.hash)
-                tmp.append(message.o_O)
-                tmp.append(message.me2.pretty())
-                tmp.append(message.me2.message.me1.message.originator.pretty())
-                tmp.append(message.me2.message.me1.message.recevier.pretty())
-                tmp.append(message.me2.message.me1.message.server.pretty())
-                tmp.append(message.me2.message.me1.message.text.pretty())
-                tmp.append(message.me2.message.me1.message.hash)
-                tmp.append(message.me2.message.hash)
-                tmp.append(message.o_R)
-                tmp.append(msg)
+                try:
+                    tmp.append(message.pretty())
+                    tmp.append(message.me1.pretty())
+                    tmp.append(message.me1.message.originator.pretty())
+                    tmp.append(message.me1.message.recevier.pretty())
+                    tmp.append(message.me1.message.server.pretty())
+                    tmp.append(message.me1.message.text.pretty())
+                    tmp.append(message.me1.message.hash)
+                    tmp.append(message.o_O)
+                    tmp.append(message.me2.pretty())
+                    tmp.append(message.me2.message.me1.message.originator.pretty())
+                    tmp.append(message.me2.message.me1.message.recevier.pretty())
+                    tmp.append(message.me2.message.me1.message.server.pretty())
+                    tmp.append(message.me2.message.me1.message.text.pretty())
+                    tmp.append(message.me2.message.me1.message.hash)
+                    tmp.append(message.me2.message.hash)
+                    tmp.append(message.o_R)
+                    tmp.append(msg)
+                except:
+                    print("An exception occurred")
                 for n in tmp:
                     if n not in self.playersKnowledge[player.name]:
                         self.playersKnowledge[player.name].append(n)
@@ -52,14 +56,17 @@ class MyState:
                         self.msgNetwork.append(n)
             elif(message.message.type=="exchangeI"):
                 tmp = []
-                tmp.append(message.pretty())
-                tmp.append(message.message.pretty())
-                tmp.append(message.message.originator.pretty())
-                tmp.append(message.message.recevier.pretty())
-                tmp.append(message.message.server.pretty())
-                tmp.append(message.message.text.pretty())
-                tmp.append(message.message.hash)
-                tmp.append(msg)
+                try:
+                    tmp.append(message.pretty())
+                    tmp.append(message.message.pretty())
+                    tmp.append(message.message.originator.pretty())
+                    tmp.append(message.message.recevier.pretty())
+                    tmp.append(message.message.server.pretty())
+                    tmp.append(message.message.text.pretty())
+                    tmp.append(message.message.hash)
+                    tmp.append(msg)
+                except:
+                    addToCrimes(message.signer.name, crimes, "signing an invalid message")
                 for n in tmp:
                     if n not in self.playersKnowledge[player.name]:
                         self.playersKnowledge[player.name].append(n)
@@ -67,16 +74,19 @@ class MyState:
                         self.msgNetwork.append(n)
             elif(message.message.type=="exchangeR"):
                 tmp = []
-                tmp.append(message.pretty())
-                tmp.append(message.message.pretty())
-                tmp.append(message.message.me1.pretty())
-                tmp.append(message.message.me1.message.originator.pretty())
-                tmp.append(message.message.me1.message.recevier.pretty())
-                tmp.append(message.message.me1.message.server.pretty())
-                tmp.append(message.message.me1.message.text.pretty())
-                tmp.append(message.message.me1.message.hash)
-                tmp.append(message.message.hash)
-                tmp.append(msg)
+                try:
+                    tmp.append(message.pretty())
+                    tmp.append(message.message.pretty())
+                    tmp.append(message.message.me1.pretty())
+                    tmp.append(message.message.me1.message.originator.pretty())
+                    tmp.append(message.message.me1.message.recevier.pretty())
+                    tmp.append(message.message.me1.message.server.pretty())
+                    tmp.append(message.message.me1.message.text.pretty())
+                    tmp.append(message.message.me1.message.hash)
+                    tmp.append(message.message.hash)
+                    tmp.append(msg)
+                except:
+                    addToCrimes(message.signer.name, crimes, "signing an invalid message")
                 for n in tmp:
                     if n not in self.playersKnowledge[player.name]:
                         self.playersKnowledge[player.name].append(n)
@@ -84,15 +94,18 @@ class MyState:
                         self.msgNetwork.append(n)
             elif(message.message.type=="abort"):
                 tmp = []
-                tmp.append(message.pretty())
-                tmp.append(message.message.pretty())
-                tmp.append(message.message.me1.pretty())
-                tmp.append(message.message.me1.message.originator.pretty())
-                tmp.append(message.message.me1.message.recevier.pretty())
-                tmp.append(message.message.me1.message.server.pretty())
-                tmp.append(message.message.me1.message.text.pretty())
-                tmp.append(message.message.me1.message.hash)
-                tmp.append(msg)
+                try:
+                    tmp.append(message.pretty())
+                    tmp.append(message.message.pretty())
+                    tmp.append(message.message.me1.pretty())
+                    tmp.append(message.message.me1.message.originator.pretty())
+                    tmp.append(message.message.me1.message.recevier.pretty())
+                    tmp.append(message.message.me1.message.server.pretty())
+                    tmp.append(message.message.me1.message.text.pretty())
+                    tmp.append(message.message.me1.message.hash)
+                    tmp.append(msg)
+                except:
+                    addToCrimes(message.signer.name, crimes, "signing an invalid message")
                 for n in tmp:
                     if n not in self.playersKnowledge[player.name]:
                         self.playersKnowledge[player.name].append(n)
@@ -101,16 +114,19 @@ class MyState:
             elif(message.message.type=="aborted"):
                 self.knownContracts.append(message.message.ma1.message.me1.message.text)
                 tmp = []
-                tmp.append(message.pretty())
-                tmp.append(message.message.pretty())
-                tmp.append(message.message.ma1.pretty())
-                tmp.append(message.message.ma1.message.me1.pretty())
-                tmp.append(message.message.ma1.message.me1.message.originator.pretty())
-                tmp.append(message.message.ma1.message.me1.message.recevier.pretty())
-                tmp.append(message.message.ma1.message.me1.message.server.pretty())
-                tmp.append(message.message.ma1.message.me1.message.text.pretty())
-                tmp.append(message.message.ma1.message.me1.message.hash)
-                tmp.append(msg)
+                try:
+                    tmp.append(message.pretty())
+                    tmp.append(message.message.pretty())
+                    tmp.append(message.message.ma1.pretty())
+                    tmp.append(message.message.ma1.message.me1.pretty())
+                    tmp.append(message.message.ma1.message.me1.message.originator.pretty())
+                    tmp.append(message.message.ma1.message.me1.message.recevier.pretty())
+                    tmp.append(message.message.ma1.message.me1.message.server.pretty())
+                    tmp.append(message.message.ma1.message.me1.message.text.pretty())
+                    tmp.append(message.message.ma1.message.me1.message.hash)
+                    tmp.append(msg)
+                except:
+                    addToCrimes(message.signer.name, crimes, "signing an invalid message")    
                 for n in tmp:
                     if n not in self.playersKnowledge[player.name]:
                         self.playersKnowledge[player.name].append(n)
@@ -119,22 +135,25 @@ class MyState:
             elif(message.message.type=="replacement"):
                 self.knownContracts.append(message.message.me1.message.text)
                 tmp = []
-                tmp.append(message.pretty())
-                tmp.append(message.message.pretty())
-                tmp.append(message.message.me1.pretty())
-                tmp.append(message.message.me1.message.originator.pretty())
-                tmp.append(message.message.me1.message.recevier.pretty())
-                tmp.append(message.message.me1.message.server.pretty())
-                tmp.append(message.message.me1.message.text.pretty())
-                tmp.append(message.message.me1.message.hash)
-                tmp.append(message.message.me2.pretty())
-                tmp.append(message.message.me2.message.me1.message.originator.pretty())
-                tmp.append(message.message.me2.message.me1.message.recevier.pretty())
-                tmp.append(message.message.me2.message.me1.message.server.pretty())
-                tmp.append(message.message.me2.message.me1.message.text.pretty())
-                tmp.append(message.message.me2.message.me1.message.hash)
-                tmp.append(message.message.me2.message.hash)
-                tmp.append(msg)
+                try:
+                    tmp.append(message.pretty())
+                    tmp.append(message.message.pretty())
+                    tmp.append(message.message.me1.pretty())
+                    tmp.append(message.message.me1.message.originator.pretty())
+                    tmp.append(message.message.me1.message.recevier.pretty())
+                    tmp.append(message.message.me1.message.server.pretty())
+                    tmp.append(message.message.me1.message.text.pretty())
+                    tmp.append(message.message.me1.message.hash)
+                    tmp.append(message.message.me2.pretty())
+                    tmp.append(message.message.me2.message.me1.message.originator.pretty())
+                    tmp.append(message.message.me2.message.me1.message.recevier.pretty())
+                    tmp.append(message.message.me2.message.me1.message.server.pretty())
+                    tmp.append(message.message.me2.message.me1.message.text.pretty())
+                    tmp.append(message.message.me2.message.me1.message.hash)
+                    tmp.append(message.message.me2.message.hash)
+                    tmp.append(msg)
+                except:
+                    addToCrimes(message.signer.name, crimes, "signing an invalid message")
                 for n in tmp:
                     if n not in self.playersKnowledge[player.name]:
                         self.playersKnowledge[player.name].append(n)

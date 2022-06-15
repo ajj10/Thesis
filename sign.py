@@ -5,4 +5,7 @@ class Sign:
     self.type = "sign"
   
   def pretty(self):
-    return "sign(inv(pk({})),{})".format(self.signer.pretty(), self.message.pretty())
+    try:
+      return "sign(inv(pk({})),{})".format(self.signer.pretty(), self.message.pretty())
+    except:
+      return "invalid message"
