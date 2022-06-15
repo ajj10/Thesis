@@ -116,7 +116,7 @@ def law6(state):
                 
 
 def law7(state):
-    # for all record in playersKnowledge
+    # for all records in playersKnowledge
     for k in state.playersKnowledge:
         # for all messages in said playersKnowledge
         for msg in state.playersKnowledge[k]:
@@ -167,28 +167,38 @@ def law7(state):
                                 
 
 def law8(state):
+    # for all records in playersKnowledge
     for k in state.playersKnowledge:
+        # for all messages in said playersKnowledge
         for msg in state.playersKnowledge[k]:
+            # if it not a string(used for pretty presentation)
             if(type(msg)!=str):
+                # standard contracts are not messages per se but can be computed by players after CS protocol run
                 if(msg.type!="standard_contract"):
+                    # if its a signed message 
                     if type(msg.message) is Sign:
+                        # of format f_abort
                         if type(msg.message.message) is Abort:
-                            if(msg.message.message.me1.signer == msg.message.message.me1.message.originator and msg.message.signer==msg.message.message.me1.signer):
-                                if(msg.message.message.me1.message.server in LRS):
-                                    if(type(msg.message.message.me1.message.text)==Contract):
-                                        for player in state.players:
-                                            for n in state.playersKnowledge:
-                                                if msg.message.message.me1.message.hash in state.playersKnowledge[n] and player.name != n:
-                                                    print("known nonce, culprit: {}".format(msg.message.signer.name))
-                                                    #msg.message.message.me1.message.text
-                                                else:
-                                                    print("law 8 not broken")
-                                    else:
-                                        print("text is not a contract, culprit: {}".format(msg.message.signer.name))
-                                else:
-                                    print("T not in LRS, culprit: {}".format(msg.message.signer.name))
-                            else:
-                                print("incorrect originator, culprit: {}".format(msg.message.signer.name))
+                            # check if law 8.1 holds (Signed me_1)
+                            if type(msg.message.message.me1) is not Sign:
+                                addToCrimes(msg.message.signer.name, crimes, "Law #8.1: me_1 is not signed")
+                            # check if law 8.1 holds (me_1 is message of format f_exchangeI)
+                            if type(msg.message.message.me1.message) is not FexchangeI:
+                                addToCrimes(msg.message.signer.name, crimes, "Law #8.1: me_1 is not of format f_exhangeI")
+                            # check if law 8.2 holds (signer of ma_1 is same as signer of me_! and same as originator(O))
+                            if(msg.message.message.me1.signer != msg.message.message.me1.message.originator and msg.message.signer!=msg.message.message.me1.signer):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #8.2: incorrect originator/signer of me_1")
+                            # check if law 8.3 holds (T in LRS)
+                            if(msg.message.message.me1.message.server in LRS):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #8.3: T not in LRS")
+                            # check if law 8.4 holds (text is a contract and O not signed it before this protocol run)
+                            if(type(msg.message.message.me1.message.text)==Contract):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #8.4: text is not a contract")
+                            # check if law 8.5 holds (contract is unique)
+                            for contract in state.knownContracts:
+                                if(msg.message.message.me1.message.text == contract):
+                                    addToCrimes(msg.message.signer.name, crimes, "Law #8.5: same contract with same participants exists")
+
 
 def law9(state):
     for k in state.playersKnowledge:
