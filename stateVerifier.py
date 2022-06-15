@@ -189,13 +189,14 @@ def law8(state):
                             if(msg.message.message.me1.signer != msg.message.message.me1.message.originator and msg.message.signer!=msg.message.message.me1.signer):
                                 addToCrimes(msg.message.signer.name, crimes, "Law #8.2: incorrect originator/signer of me_1")
                             # check if law 8.3 holds (T in LRS)
-                            if(msg.message.message.me1.message.server in LRS):
+                            if(msg.message.message.me1.message.server not in LRS):
                                 addToCrimes(msg.message.signer.name, crimes, "Law #8.3: T not in LRS")
                             # check if law 8.4 holds (text is a contract and O not signed it before this protocol run)
-                            if(type(msg.message.message.me1.message.text)==Contract):
+                            if(type(msg.message.message.me1.message.text)!=Contract):
                                 addToCrimes(msg.message.signer.name, crimes, "Law #8.4: text is not a contract")
                             # check if law 8.5 holds (contract is unique)
                             for contract in state.knownContracts:
+                                print("Adam")
                                 if(msg.message.message.me1.message.text == contract):
                                     addToCrimes(msg.message.signer.name, crimes, "Law #8.5: same contract with same participants exists")
 
@@ -306,15 +307,15 @@ val_1 = MyMessage(O,R,validContract)
 init_state.addMsg(me1_1, crimes)
 init_state.addMsg(me2_1, crimes)
 init_state.addMsg(ma1_1, crimes)
-init_state.addMsg(ma2_1, crimes)
-init_state.addMsg(rep_1, crimes)
-init_state.addMsg(val_1, crimes)
+#init_state.addMsg(ma2_1, crimes)
+#init_state.addMsg(rep_1, crimes)
+#init_state.addMsg(val_1, crimes)
 
 
 #law2(init_state) #Done
 #law6(init_state) #Done
-law7(init_state)
-#law8(init_state)
+#law7(init_state) #Done
+law8(init_state)
 
 print(crimes)
 
