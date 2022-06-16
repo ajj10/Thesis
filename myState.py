@@ -112,6 +112,7 @@ class MyState:
                         player.addToKnowledge(n)
                         self.msgNetwork.append(n)
             elif(message.message.type=="aborted"):
+                message.message.ma1.message.me1.message.text.aborted = True
                 self.knownContracts.append(message.message.ma1.message.me1.message.text)
                 tmp = []
                 try:
@@ -133,6 +134,7 @@ class MyState:
                         player.addToKnowledge(n)
                         self.msgNetwork.append(n)
             elif(message.message.type=="replacement"):
+                message.message.me1.message.text.replacement = True
                 self.knownContracts.append(message.message.me1.message.text)
                 tmp = []
                 try:

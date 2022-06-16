@@ -63,7 +63,7 @@ h_R = h(o_R)
 # Crimes
 crimes = {'O': [], 'R': [], 'T1': [], 'T2': [], 'T3': [], 'X': [], 'Y': []}
 
-#Law 2
+# Leaked private key
 def law2(state):
     # for all players in the system
     for player in state.players:
@@ -73,7 +73,7 @@ def law2(state):
             if player.key in state.playersKnowledge[k] and player.name != k:
                 crimes[player.name].append("Law #2: known private key")
 
-#Law 6 - Possible law breaks
+# CS protocol initiation request (me_1)
 def law6(state):
     # for all records in playersKnowledge
     for k in state.playersKnowledge:
@@ -114,7 +114,7 @@ def law6(state):
                             if(type(msg.message.message.hash)!=str):
                                 addToCrimes(msg.message.signer.name, crimes, "Law #6.7: h_O is not a hash")
                 
-
+# CS protocol initiation response (me_2)
 def law7(state):
     # for all records in playersKnowledge
     for k in state.playersKnowledge:
@@ -165,7 +165,7 @@ def law7(state):
                             if(type(msg.message.message.hash)!=str):
                                 addToCrimes(msg.message.signer.name, crimes, "Law #7.7: h_R is not a hash")
                                 
-
+# Abort request (ma_1)
 def law8(state):
     # for all records in playersKnowledge
     for k in state.playersKnowledge:
@@ -196,42 +196,85 @@ def law8(state):
                                 addToCrimes(msg.message.signer.name, crimes, "Law #8.4: text is not a contract")
                             # check if law 8.5 holds (contract is unique)
                             for contract in state.knownContracts:
-                                print("Adam")
                                 if(msg.message.message.me1.message.text == contract):
                                     addToCrimes(msg.message.signer.name, crimes, "Law #8.5: same contract with same participants exists")
 
-
+# Abort token (ma_2)
 def law9(state):
+    # for all records in playersKnowledge
     for k in state.playersKnowledge:
+        # for all messages in said playersKnowledge
         for msg in state.playersKnowledge[k]:
+            # if it not a string(used for pretty presentation)
             if(type(msg)!=str):
+                # standard contracts are not messages per se but can be computed by players after CS protocol run
                 if(msg.type!="standard_contract"):
+                     # if its a signed message
                     if type(msg.message) is Sign:
+                        # of format f_aborted
                         if type(msg.message.message) is Aborted:
-                            if(msg.message.message.ma1.signer == msg.message.message.ma1.message.me1.signer and msg.message.message.ma1.message.me1.signer==msg.message.message.ma1.message.me1.message.originator):
-                                if(msg.message.signer in LRS):
-                                    if(msg.message.signer == msg.message.message.ma1.message.me1.message.server):
-                                        if(type(msg.message.message.ma1.message.me1.message.text)==Contract):
-                                            if(msg.message.message.ma1.message.me1.message.text not in knownContractsT):
-                                                print("legal message")
-                                                knownContractsT.append(msg.message.message.ma1.message.me1.message.text)
-                                                msg.message.message.ma1.message.me1.message.text.aborted = True
-                                            else:
-                                                if(msg.message.message.ma1.message.me1.message.originator == msg.message.message.ma1.message.me1.message.text.originator and msg.message.message.ma1.message.me1.message.recevier == msg.message.message.ma1.message.me1.message.text.receiver):
-                                                    if(msg.message.message.ma1.message.me1.message.text.replacement):
-                                                        print("replacement contract exists, culprit: {}".format(msg.message.signer.name))
-                                                else: 
-                                                    print("legal message(contract known, but different players or already aborted)")
-                                        else:
-                                            print("text is not a contract, culprit: {}".format(msg.message.signer.name))
-                                    else: 
-                                        print("incorrect server, culprit: {}".format(msg.message.signer.name))
-                                else:
-                                    print("T not in LRS, culprit: {}".format(msg.message.signer.name))
-                            else:
-                                print("incorrect originator, culprit: {}".format(msg.message.signer.name))
+                            # check if law 9.1 holds (Signed ma_1)
+                            if type(msg.message.message.ma1) is not Sign:
+                                addToCrimes(msg.message.signer.name, crimes, "Law #9.1: ma_1 is not signed")
+                            # check if law 9.1 holds (me_1 is message of format f_abort)
+                            if type(msg.message.message.ma1.message) is not Abort:
+                                addToCrimes(msg.message.signer.name, crimes, "Law #9.1: me_1 is not of format f_abort")
+                            # check if law 9.2 holds (signiture on ma_1 and me_1 match O from f_exchangeI)
+                            if(msg.message.message.ma1.signer != msg.message.message.ma1.message.me1.signer and msg.message.message.ma1.message.me1.signer!=msg.message.message.ma1.message.me1.message.originator):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #9.2: incorrect originator/signer")
+                            # check if law 9.3 holds (T in LRS)
+                            if(msg.message.signer not in LRS):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #9.3: T not in LRS")
+                            # check if law 9.4 holds (T in f_exchangeI request)
+                            if(msg.message.signer != msg.message.message.ma1.message.me1.message.server):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #9.4: incorrect server")
+                            # check if law 9.5 holds (text is a contract)
+                            if(type(msg.message.message.ma1.message.me1.message.text)!=Contract):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #9.5: text is not a contrac")
+                            # check if law 9.5 holds (text is unique and no replacement contract for it exists)
+                            if(msg.message.message.ma1.message.me1.message.text in state.knownContracts):
+                                if(msg.message.message.ma1.message.me1.message.text.replacement):
+                                    addToCrimes(msg.message.signer.name, crimes, "Law #9.5: replacement contract exists")
 
-
+# Replacement Contract 
+def law10(state):
+    # for all records in playersKnowledge
+    for k in state.playersKnowledge:
+        # for all messages in said playersKnowledge
+        for msg in state.playersKnowledge[k]:
+            # if it not a string(used for pretty presentation)
+            if(type(msg)!=str):
+                # standard contracts are not messages per se but can be computed by players after CS protocol run
+                if(msg.type!="standard_contract"):
+                     # if its a signed message
+                    if type(msg.message) is Sign:
+                        # of format f_aborted
+                        if type(msg.message.message) is Replacement:
+                            # check if law 10.1/10.2 holds (Signed me_1 and me2)
+                            if(type(msg.message.message.me1) != Sign or type(msg.message.message.me2) != Sign):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.1/10.2: unsigned me_1/me_2")
+                            # check if law 10.1/10.2 holds (me_1 is of format f_exchangeI and me2 is of format f_exchangeR)
+                            if(type(msg.message.message.me1.message) != FexchangeI or type(msg.message.message.me2.message) != FexchangeR):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.1/10.2: me_1/me_2 is of wrong format")
+                            # check if law 10.3 holds (T in LRS)
+                            if(msg.message.signer not in LRS):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.3: T not in LRS")
+                            # check if law 10.4 holds (T in f_exchangeI request)
+                            if(msg.message.signer != msg.message.message.me1.message.server):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.4: incorrect server")
+                            # check if law 10.5 holds (Signer of me_1 is O from f_exchangeI)
+                            if(msg.message.message.me1.signer != msg.message.message.me1.message.originator):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.5: incorrect originator")
+                            # check if law 10.6 holds (Signer of me_2 is R from f_exchangeI)
+                            if(msg.message.message.me2.signer != msg.message.message.me1.message.recevier):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.6: incorrect receiver")
+                            # check if law 10.7 holds (text is a contract)
+                            if(type(msg.message.message.me1.message.text)!=Contract):
+                                addToCrimes(msg.message.signer.name, crimes, "Law #10.7: text is not a contract")
+                            # check if law 10.7 holds (text is unique and no abort token for it exists)
+                            if(msg.message.message.me1.message.text in state.knownContracts):               
+                                if(msg.message.message.me1.message.text.aborted):
+                                    addToCrimes(msg.message.signer.name, crimes, "Law #10.7: abort token exists")                    
 
 me1_a = Sign(O, FexchangeI(O, R, T1, text1, h_O)) # legal message
 me1_b = Sign(X, FexchangeI(O, R, T1, text1, h_O)) # illegal, breaks law 6.1 (X != O) 
@@ -308,14 +351,16 @@ init_state.addMsg(me1_1, crimes)
 init_state.addMsg(me2_1, crimes)
 init_state.addMsg(ma1_1, crimes)
 #init_state.addMsg(ma2_1, crimes)
-#init_state.addMsg(rep_1, crimes)
+init_state.addMsg(rep_1, crimes)
 #init_state.addMsg(val_1, crimes)
 
 
 #law2(init_state) #Done
 #law6(init_state) #Done
 #law7(init_state) #Done
-law8(init_state)
+#law8(init_state) #Done
+#law9(init_state) #Done
+law10(init_state)
 
 print(crimes)
 
