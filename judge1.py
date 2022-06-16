@@ -56,9 +56,6 @@ o_R = "oR"
 h_O = h(o_O)
 h_R = h(o_R)
 
-#Law 2
-#TODO how to prove known private key?
-
 #Law 6 - Possible law breaks
 me1_a = Sign(O, FexchangeI(O, R, T1, text1, h_O)) # legal message
 me1_b = Sign(X, FexchangeI(O, R, T1, text1, h_O)) # illegal, breaks law 6.1 (X != O) 
