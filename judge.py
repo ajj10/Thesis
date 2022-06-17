@@ -41,7 +41,7 @@ text3 = Contract(3, O, R, "text3")
 
 # Known contracts, all contracts become know when servers handles them(posted on bulletin board)
 # or when judge gets claim with the contract
-knownContracts = []
+knownContractsJudge = []
 knownContractsT = []
 text2.replacement = True
 text3.aborted = True
@@ -56,7 +56,7 @@ o_R = "oR"
 h_O = h(o_O)
 h_R = h(o_R)
 
-#Law 6 - Possible law breaks
+#Law 6 - Possible messages of me_1
 me1_a = Sign(O, FexchangeI(O, R, T1, text1, h_O)) # legal message
 me1_b = Sign(X, FexchangeI(O, R, T1, text1, h_O)) # illegal, breaks law 6.1 (X != O) 
 me1_c = Sign(O, FexchangeI(O, C, T1, text1, h_O)) # illegal, breaks law 6.2 (C not in Player)
@@ -64,7 +64,7 @@ me1_d = Sign(O, FexchangeI(O, R, T2, text1, h_O)) # illegal, breaks law 6.3 (T2 
 me1_e = Sign(O, FexchangeI(O, R, T1, O, h_O))     # illegal, breaks law 6.4 (text is not a valid contract)
 me1_f = Sign(O, FexchangeI(O, R, T1, text1, X)) # illegal, breaks law 6.6 (h_O not a hash)
 
-#Law 7 - Possible law breaks
+#Law 7 - Possible messages of me_2
 me2_a = Sign(R, FexchangeR(me1_a, h_R)) # legal in all ways
 me2_b = Sign(R, FexchangeR(FexchangeI(O, R, T1, text1, h_O), h_R)) # illegal, breaks law 7.1 (unsigned me1)
 me2_c = Sign(R, FexchangeR(Sign(O, "tmp"), h_R)) # illegal, breaks law 7.1 (invalid me1)
@@ -74,7 +74,7 @@ me2_f = Sign(R, FexchangeR(me1_d, h_R)) # illegal, breaks law 7.4 (server not in
 me2_g = Sign(R, FexchangeR(me1_e, h_R)) # illegal, breaks law 7.5 (text not a contract)
 me2_h = Sign(R, FexchangeR(me1_a, X)) # illegal, breaks law 7.7 (h_O not a hash)
 
-#Law 8 - Possible law breaks
+#Law 8 - Possible messages of ma_1
 ma1_a = Sign(O, Abort(me1_a)) # legal in all ways
 ma1_b = Sign(O, Abort(FexchangeI(O, R, T1, text1, h_O))) # illegal, breaks law 8.1 (unsigned me1)
 ma1_c = Sign(O, Abort(Sign(O, "tmp"))) # illegal, breaks law 8.1 (invalid me1)
@@ -83,7 +83,7 @@ ma1_e = Sign(R, Abort(me1_a)) # illegal, breaks law 8.2 (invalid originator)
 ma1_f = Sign(O, Abort(me1_d)) # illegal, breaks law 8.3 (server not in LRS)
 ma1_g = Sign(O, Abort(me1_e)) # illegal, breaks law 8.4 (text not a contract)
 
-#Law 9 - Possible law breaks
+#Law 9 - Possible messages of ma_2
 ma2_a = Sign(T1, Aborted(ma1_a)) # legal in all ways
 ma2_b = Sign(T1, Aborted(Abort(me1_a))) # illegal, breaks law 9.1 (unsigned ma1)
 ma2_c = Sign(T1, Aborted(Sign(O, "tmp"))) # illegal, breaks law 9.1 (invalid ma1)
@@ -111,5 +111,6 @@ rep_k = Sign(T1, Replacement(Sign(O, FexchangeI(O, R, T1, text3, o_O)),Sign(R, F
 validContract = Standardcontract(me1_a, o_O, me2_a, o_R)
 
 # Judge will get evidence of valid contract and abort, or a signed format message and possible a nonce
-evid = Evidence(1, [ma2_a])
-checker(evid, knownContracts, knownContractsT, LRS, players)
+evid = Evidence(1, [validContract,ma2_a])
+evid.display()
+checkLawBreak(evid, knownContractsJudge, knownContractsT, LRS, players)

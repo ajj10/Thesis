@@ -88,6 +88,39 @@ def abortcheck(evidence, nonce, knownContracts, LRS):
 
 # function to check if a signiture on a message of f_aborted format is legal
 def abortedcheck(evidence, knownContractsT, LRS):
+    #Start with an empty record where no one has broken any laws
+    crimes= {}
+    # Message judge is looking at
+    msg=evidence
+    # check if law 9.1 holds (Signed ma_1)
+    print(msg.abortToken.message.ma1)
+    if type(msg.abortToken.message.ma1) is not Sign:
+        crimes[msg.abortToken.signer.name].append("Law #9.1: ma_1 is not signed")
+    # check if law 9.1 holds (me_1 is message of format f_abort)
+    if type(msg.message.message.ma1.message) is not Abort:
+        crimes[msg.message.signer.name].append("")
+        #addToCrimes(msg.message.signer.name, state.crimes, "Law #9.1: me_1 is not of format f_abort")
+    # check if law 9.2 holds (signiture on ma_1 and me_1 match O from f_exchangeI)
+    if(msg.message.message.ma1.signer != msg.message.message.ma1.message.me1.signer and msg.message.message.ma1.message.me1.signer!=msg.message.message.ma1.message.me1.message.originator):
+        crimes[msg.message.signer.name].append("")
+        #addToCrimes(msg.message.signer.name, state.crimes, "Law #9.2: incorrect originator/signer")
+    # check if law 9.3 holds (T in LRS)
+    if(msg.message.signer not in LRS):
+        crimes[msg.message.signer.name].append("")
+        #addToCrimes(msg.message.signer.name, state.crimes, "Law #9.3: T not in LRS")
+    # check if law 9.4 holds (T in f_exchangeI request)
+    if(msg.message.signer != msg.message.message.ma1.message.me1.message.server):
+        crimes[msg.message.signer.name].append("")
+        #addToCrimes(msg.message.signer.name, state.crimes, "Law #9.4: incorrect server")
+    # check if law 9.5 holds (text is a contract)
+    if(type(msg.message.message.ma1.message.me1.message.text)!=Contract):
+        crimes[msg.message.signer.name].append("")
+        #addToCrimes(msg.message.signer.name, state.crimes, "Law #9.5: text is not a contract")
+    # check if law 9.5 holds (text is unique and no replacement contract for it exists)
+    if(msg.message.message.ma1.message.me1.message.text in knownContractsT):
+        if(msg.message.message.ma1.message.me1.message.text.replacement):
+            crimes[msg.message.signer.name].append("")
+            #addToCrimes(msg.message.signer.name, state.crimes, "Law #9.5: replacement contract exists")
     if(type(evidence.message.ma1) == Sign):
         if(type(evidence.message.ma1.message) == Abort):
             if(evidence.message.ma1.signer == evidence.message.ma1.message.me1.signer and evidence.message.ma1.message.me1.signer==evidence.message.ma1.message.me1.message.originator):
@@ -151,9 +184,40 @@ def replacementcheck(evidence, knownContractsT, LRS):
     else:
         print("unsigned me_1/me_2 message, culprit: {}".format(evidence.signer.name))
 
-# function that takes in evidence and checks what kind of evidence is and if any laws have been broken
-def checker(evidence, knownContracts, knownContractsT, LRS, players):
-    evidence.display()
+# function that takes in evidence and checks what kind of evidence it is and if any laws have been broken
+def checkLawBreak(evidence, knownContracts, knownContractsT, LRS, players):
+    abortedcheck(evidence, knownContractsT, LRS)
+    if(evidence.stdcontract != None):
+        print("checking me_1 message of standard contract:")
+        #fexchangeIcheck(evidence.stdcontract.me1,knownContracts,LRS,players, True)
+        print("checking me_2 message of standard contract:")
+        #fexchangeRcheck(evidence.stdcontract.me2,knownContracts,LRS)
+        print("-------------------------------------")
+    else:
+        print("checking f_replacement message:")
+        #replacementcheck(n, knownContractsT, LRS)
+        print("checking me_2 message:")
+        #if(type(n.message.me2)==Sign):
+        #    if(type(n.message.me2.message)==FexchangeR):
+        #        fexchangeRcheck(n.message.me2, knownContracts, LRS)
+        #    else:
+        #        print("invalid me_2 message")
+        #else:
+        #    print("unsigned me_2 message")
+        #print("checking me_1 message:")
+        #if(type(n.message.me1)==Sign):
+        #    if(type(n.message.me1.message)==FexchangeI):
+        #        fexchangeIcheck(n.message.me1, knownContracts, LRS, players, False)
+        #        knownContracts.append(n.message.me1.message.text)
+        #    else:
+        #        print("invalid me_1 message")
+        #else:
+        #    print("unsigned me_1 message")
+        print("-------------------------------------")
+
+
+# function that takes in evidence and checks what kind of evidence it is and if any laws have been broken
+def checkLawBreak1(evidence, knownContracts, knownContractsT, LRS, players):
     if(evidence.stdcontract != None):
         print("checking me_1 message of standard contract:")
         fexchangeIcheck(evidence.stdcontract.me1,knownContracts,LRS,players, True)
