@@ -111,6 +111,6 @@ rep_k = Sign(T1, Replacement(Sign(O, FexchangeI(O, R, T1, text3, o_O)),Sign(R, F
 validContract = Standardcontract(me1_a, o_O, me2_a, o_R)
 
 # Judge will get evidence of valid contract and abort, or a signed format message and possible a nonce
-evid = Evidence(1, [validContract,ma2_a])
+evid = Evidence(1, [ma2_a, validContract])
 evid.display()
 checkLawBreak(evid, knownContractsJudge, knownContractsT, LRS, players)

@@ -9,7 +9,7 @@ from contract import Contract
 from standardcontract import Standardcontract
 from myState import MyState
 from myMessage import MyMessage
-from myfunctions1 import *
+from myLaws import *
 
 # Players
 players = []

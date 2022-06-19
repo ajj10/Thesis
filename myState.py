@@ -1,4 +1,4 @@
-from myfunctions1 import *
+from myLaws import *
 
 class MyState:
     def __init__(self, players, LRS):
