@@ -6,9 +6,9 @@ class Player:
     self.key = "inv(pk({}))".format(name)
     self.knowledge = [self.key]
 
-
   def addToKnowledge(self,msg):
     self.knowledge.append(msg)
 
   def pretty(self):
     return self.name
+  
