@@ -127,17 +127,18 @@ val_1 = MyMessage(O,R,validContract)
 # Add messages to state
 init_state.addMsg(me1_1)
 init_state.addMsg(me2_1)
-init_state.addMsg(val_1)
-#init_state.addMsg(ma1_1)
-#init_state.addMsg(ma2_1)
-#init_state.addMsg(me1_1)
 init_state.addMsg(rep_1)
+#init_state.addMsg(val_1)
+init_state.addMsg(ma1_1)
+init_state.addMsg(ma2_1)
+#init_state.addMsg(me1_1)
+#init_state.addMsg(rep_1)
 #init_state.addMsg(ma2_1)
 #init_state.addMsg(me1_1)
 #init_state.addMsg(me2_1)
 
-# Show crimes commited within the state
-print(init_state.crimes)
+# call function crimes with the given state
+crimes(init_state)
 
 
 

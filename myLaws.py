@@ -20,7 +20,7 @@ def law2(state):
         for k in state.playersKnowledge:
             # if the private key of a player is in another players knowledge
             if player.key in state.playersKnowledge[k] and player.name != k:
-                addToCrimes(player.name, state.state.crimes, "Law #6.3: incorrect recipient")
+                addToCrimes(player.name, state.state.crimes, "Law #2: known private key")
 
 # CS protocol initiation request (me_1)
 def law6(state):
@@ -29,6 +29,7 @@ def law6(state):
     # check if law 6.1 holds (O is correct originator)
     if(msg.message.signer.id != msg.message.message.originator.id):
         addToCrimes(msg.message.signer.name, state.crimes, "Law #6.1: incorrect originator")
+        addToCrimes(msg.message.signer.name, state.crimes, msg.message.pretty())
     # check if law 6.2 holds (R in Players)
     if(msg.message.message.recevier not in state.players):
         addToCrimes(msg.message.signer.name, state.crimes, "Law #6.2: incorrect variable type for recipient")
@@ -42,7 +43,7 @@ def law6(state):
     if(type(msg.message.message.text)!=Contract):
         addToCrimes(msg.message.signer.name, state.crimes, "Law #6.5: text is not a contract")
     # check if law 6.5 holds (text is unique)
-    if(msg.message.message.text in state.knownContracts):
+    if(msg.message.message.text in state.bulletinBoard):
             if msg.message.message.text.aborted:
                 if msg.originator.name == msg.message.signer.name:
                     addToCrimes(msg.message.signer.name, state.crimes, "Law #6.5: contract already aborted")
@@ -150,9 +151,10 @@ def law9(state):
     if(type(msg.message.message.ma1.message.me1.message.text)!=Contract):
         addToCrimes(msg.message.signer.name, state.crimes, "Law #9.5: text is not a contract")
     # check if law 9.5 holds (text is unique and no replacement contract for it exists)
-    if(msg.message.message.ma1.message.me1.message.text in state.knownContracts):
+    if(msg.message.message.ma1.message.me1.message.text in state.bulletinBoard):
         if(msg.message.message.ma1.message.me1.message.text.replacement):
             addToCrimes(msg.message.signer.name, state.crimes, "Law #9.5: replacement contract exists")
+            addToCrimes(msg.message.signer.name, state.crimes, msg.message.pretty())
 
 # Replacement Contract 
 def law10(state):
@@ -180,6 +182,10 @@ def law10(state):
     if(type(msg.message.message.me1.message.text)!=Contract):
         addToCrimes(msg.message.signer.name, state.crimes, "Law #10.7: text is not a contract")
     # check if law 10.7 holds (text is unique and no abort token for it exists)
-    if(msg.message.message.me1.message.text in state.knownContracts):               
+    if(msg.message.message.me1.message.text in state.bulletinBoard):               
         if(msg.message.message.me1.message.text.aborted):
             addToCrimes(msg.message.signer.name, state.crimes, "Law #10.7: abort token exists")
+            addToCrimes(msg.message.signer.name, state.crimes, "Evid:{}".format(msg.message.pretty()))
+
+def crimes(curr_state):
+    print(curr_state.crimes)

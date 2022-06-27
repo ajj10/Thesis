@@ -4,7 +4,7 @@ class MyState:
     def __init__(self, players, LRS):
         self.msgTrace = [] # message trace of the state
         self.msgNetwork = [] # all messages on the network
-        self.knownContracts = [] # contracts known to server, bulletin board (replaced or aborted)
+        self.bulletinBoard = [] # contracts known to server, bulletin board (replaced or aborted)
         self.knownStandardContracts = [] # standard contracts unknown to server T
         # contracts players have signed (Players should remeber contract they have signed)
         self.playerContracts = {'O': [], 'R': [], 'T1': [], 'T2': [], 'T3': [], 'X': [], 'Y': [], 'intruder': []} 
@@ -104,7 +104,7 @@ class MyState:
             # marking the contract as aborted, illegal to replace it after that  
             message.message.ma1.message.me1.message.text.aborted = True
             # add the contract to the states known contracts (all contracts on bulltin board, aborted or replaced)
-            self.knownContracts.append(message.message.ma1.message.me1.message.text)
+            self.bulletinBoard.append(message.message.ma1.message.me1.message.text)
             law9(self) # checking ma_2
         elif(message.message.type=="replacement"):
             tmp = []
@@ -122,7 +122,7 @@ class MyState:
             # marking the contract as replaced, illegal to abort it after that           
             message.message.me1.message.text.replacement = True
             # add the contract to the states known contracts (all contracts on bulltin board, aborted or replaced)
-            self.knownContracts.append(message.message.me1.message.text)
+            self.bulletinBoard.append(message.message.me1.message.text)
             law10(self) # checking replacement contract
 
     # add the new message to players knowledge and to the set of message on the network
