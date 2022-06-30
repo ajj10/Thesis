@@ -8,6 +8,7 @@ from player import Player
 from contract import Contract
 from standardcontract import Standardcontract
 from evidence import Evidence
+from req import Req
 from myFunctions import *
 
 # Players
@@ -109,8 +110,9 @@ rep_k = Sign(T1, Replacement(Sign(O, FexchangeI(O, R, T1, text3, o_O)),Sign(R, F
 
 #Valid standar contract
 validContract = Standardcontract(me1_a, o_O, me2_a, o_R)
+request_1 = Req([me1_a, me2_a], "sorry")
 
 # Judge will get evidence of valid contract and abort, or a signed format message and possible a nonce
-evid = Evidence(1, [ma2_a, validContract])
+evid = Evidence(1, [request_1])
 evid.display()
 checkLawBreak(evid, knownContractsJudge, knownContractsT, LRS, players)
